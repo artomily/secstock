@@ -1,0 +1,10 @@
+node_modules
+.next
+.env
+.env.local
+install.log
+*.tsbuildinfo
+next-env.d.ts
+guard-log.jsonl
+_to_delete
+.claude/
