@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "sfx": "bash scripts/sfx.sh",
-    "vo": "node scripts/vo.mjs",
+    "vo": "VOICE='Daniel (English (UK))' RATE=172 node scripts/vo.mjs",
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts Demo out/demo.mp4 --codec h264 --crf 18",
     "record": "node scripts/record.mjs"

@@ -1,34 +1,34 @@
 {
   "hook": {
-    "frames": 270,
-    "vo": false
+    "frames": 305,
+    "vo": true
   },
   "problem": {
     "frames": 420,
-    "vo": false
+    "vo": true
   },
   "intro": {
     "frames": 210,
-    "vo": false
+    "vo": true
   },
   "risk": {
-    "frames": 450,
-    "vo": false
+    "frames": 454,
+    "vo": true
   },
   "sim": {
-    "frames": 450,
-    "vo": false
+    "frames": 390,
+    "vo": true
   },
   "scenarios": {
     "frames": 330,
-    "vo": false
+    "vo": true
   },
   "protect": {
-    "frames": 510,
-    "vo": false
+    "frames": 489,
+    "vo": true
   },
   "outro": {
-    "frames": 360,
-    "vo": false
+    "frames": 401,
+    "vo": true
   }
 }
