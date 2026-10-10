@@ -6,7 +6,8 @@
     "vo": "VOICE='Daniel (English (UK))' RATE=172 node scripts/vo.mjs",
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts Demo out/demo.mp4 --codec h264 --crf 18",
-    "record": "node scripts/record.mjs"
+    "record": "node scripts/record.mjs",
+    "srt": "node scripts/srt.mjs"
   },
   "type": "module",
   "dependencies": {
