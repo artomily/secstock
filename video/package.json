@@ -5,7 +5,8 @@
     "sfx": "bash scripts/sfx.sh",
     "vo": "node scripts/vo.mjs",
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Demo out/demo.mp4 --codec h264 --crf 18"
+    "render": "remotion render src/index.ts Demo out/demo.mp4 --codec h264 --crf 18",
+    "record": "node scripts/record.mjs"
   },
   "type": "module",
   "dependencies": {

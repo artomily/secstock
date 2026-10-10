@@ -2,10 +2,10 @@
 // Voice source, in order of preference:
 //   1. Your own recordings: put vo/rec/<id>.wav (or .m4a/.mp3) and they are used as-is.
 //   2. ElevenLabs, if ELEVENLABS_API_KEY is set (ELEVENLABS_VOICE_ID optional).
-//   3. macOS `say` with VOICE (default "Samantha"). Install a Premium voice for a natural sound.
-// No voice at all: SILENT=1 writes timing from the `min` seconds only.
+//   3. macOS `say`, only if VOICE is set (sounds synthetic).
+// Otherwise the scene has no voice; captions carry the script.
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 
 const FPS = 30;
 const script = JSON.parse(readFileSync("vo/script.json", "utf8"));
@@ -29,16 +29,17 @@ async function eleven(text, dst) {
 const timing = {};
 for (const s of script) {
   const dst = `public/vo/${s.id}.wav`;
+  rmSync(dst, { force: true });
   let secs = 0;
   if (!process.env.SILENT) {
     const rec = ["wav", "m4a", "mp3"].map((e) => `vo/rec/${s.id}.${e}`).find(existsSync);
     if (rec) toWav(rec, dst);
     else if (process.env.ELEVENLABS_API_KEY) await eleven(s.text, dst);
-    else {
-      execFileSync("say", ["-v", process.env.VOICE ?? "Samantha", "-r", process.env.RATE ?? "175", "-o", "public/vo/tmp.aiff", s.text]);
+    else if (process.env.VOICE) {
+      execFileSync("say", ["-v", process.env.VOICE, "-r", process.env.RATE ?? "175", "-o", "public/vo/tmp.aiff", s.text]);
       toWav("public/vo/tmp.aiff", dst);
     }
-    secs = dur(dst);
+    if (existsSync(dst)) secs = dur(dst);
   }
   // 0.6 s lead-in + 0.9 s tail so lines never run into the next scene
   timing[s.id] = { frames: Math.round(Math.max(s.min, secs + 1.5) * FPS), vo: secs > 0 };

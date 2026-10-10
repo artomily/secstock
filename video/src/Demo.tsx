@@ -63,7 +63,7 @@ const Problem = ({ dur }: { dur: number }) => {
   const shake = gapHit && f < 320 ? Math.sin(f * 2.2) * (320 - f) * 0.5 : 0;
   return (
     <Scene dur={dur} vo="problem">
-      <div style={{ ...center, transform: `translateX(${shake}px)` }}>
+      <div style={{ ...center, paddingBottom: 200, transform: `translateX(${shake}px)` }}>
         <Rise at={4}>
           <Kicker>The weekend gap</Kicker>
         </Rise>
@@ -91,8 +91,8 @@ const Problem = ({ dur }: { dur: number }) => {
         <div style={{ ...center, pointerEvents: "none" }}>
           <div
             style={{
-              font: `800 130px ${FONT}`, color: C.bad, border: `10px solid ${C.bad}`, borderRadius: 24, padding: "4px 40px",
-              transform: `rotate(-8deg) scale(${2 - stamp})`, opacity: stamp, background: "#0b0b10cc", marginTop: 720,
+              font: `800 110px ${FONT}`, color: C.bad, border: `10px solid ${C.bad}`, borderRadius: 24, padding: "4px 40px",
+              transform: `rotate(-8deg) scale(${2 - stamp})`, opacity: stamp, background: "#0b0b10cc", marginTop: 420,
             }}
           >
             LIQUIDATED
@@ -208,12 +208,12 @@ const Risk = ({ dur }: { dur: number }) => {
 /* 5 ─ Health factor simulation chart with moving slider */
 const Sim = ({ dur }: { dur: number }) => {
   const f = useCurrentFrame();
-  const W = 1500, H = 460, top = 1.6;
+  const W = 1500, H = 360, top = 1.6;
   const X = (g: number) => (g / 40) * W, Y = (h: number) => H - (Math.min(h, top) / top) * H;
   const gaps = Array.from({ length: 81 }, (_, i) => i / 2);
   const path = (extra: number) => gaps.map((g, i) => `${i ? "L" : "M"}${X(g)},${Y(hfAt(g, extra))}`).join("");
   const draw = ease(f, 40, 120);
-  const gap = interpolate(f, [150, 230, 300, 360, 420], [6, 6, 22, 22, 6], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const gap = interpolate(f, [130, 190, 250, 300, 360], [6, 6, 22, 22, 6], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const hu = hfAt(gap), hp = hfAt(gap, POS.topUp);
   const tip = ease(f, 130, 145);
   return (
@@ -222,7 +222,7 @@ const Sim = ({ dur }: { dur: number }) => {
         <Kicker>Step 2</Kicker>
         <div style={{ font: `700 80px ${FONT}`, letterSpacing: -3, marginTop: 10 }}>Stress-test the loan</div>
       </Rise>
-      <Rise at={14} style={{ position: "absolute", left: 140, right: 140, top: 270 }}>
+      <Rise at={14} style={{ position: "absolute", left: 140, right: 140, top: 230 }}>
         <Card style={{ padding: 44 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 24 }}>
             <span style={{ font: `700 96px ${FONT}`, letterSpacing: -3, color: hu < 1 ? C.bad : C.text }}>{hu.toFixed(2)}</span>
@@ -275,9 +275,9 @@ const Sim = ({ dur }: { dur: number }) => {
       </Rise>
       <Sfx at={14} name="whoosh" />
       <Sfx at={40} name="riser" vol={0.6} />
-      <Sfx at={150} name="click" />
-      <Sfx at={262} name="alarm" vol={0.8} />
-      <Sfx at={360} name="click" />
+      <Sfx at={130} name="click" />
+      <Sfx at={225} name="alarm" vol={0.8} />
+      <Sfx at={300} name="click" />
     </Scene>
   );
 };
@@ -412,7 +412,7 @@ const Outro = ({ dur }: { dur: number }) => {
         <Rise at={170} style={{ marginTop: 70, textAlign: "center" }}>
           <Logo size={64} />
           <div style={{ font: `700 92px ${FONT}`, letterSpacing: -3, marginTop: 12 }}>Sleep through the weekend.</div>
-          <div style={{ font: `500 34px ${MONO}`, color: C.a2, marginTop: 24 }}>github.com/artomily/secstock</div>
+          <div style={{ font: `500 34px ${MONO}`, color: C.a2, marginTop: 24 }}>secstock.vercel.app</div>
         </Rise>
       </div>
       {[0, 1, 2].map((i) => <Sfx key={i} at={10 + i * 30} name="pop" />)}

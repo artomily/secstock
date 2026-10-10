@@ -1,4 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
+import timing from "./timing.json";
+import script from "../vo/script.json";
 import { Audio, Easing, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 export const C = {
@@ -32,14 +34,42 @@ export const Rise = ({ at, children, style, dist = 40 }: { at: number; children:
   );
 };
 
-/** Scene wrapper: fades in and out at the edges, carries the voice-over. */
-export const Scene = ({ dur, vo, children }: { dur: number; vo?: string; children: ReactNode }) => {
+/** On-screen caption: the script line, one sentence at a time. */
+const Caption = ({ id, dur }: { id: string; dur: number }) => {
+  const f = useCurrentFrame();
+  const text = (script as { id: string; text: string }[]).find((s) => s.id === id)?.text ?? "";
+  const parts = text.match(/[^.?!]+[.?!]*/g)?.map((x) => x.trim()) ?? [];
+  const total = parts.reduce((a, p) => a + p.length, 0);
+  const start = 14, end = dur - 16;
+  let t = start;
+  const spans = parts.map((p) => {
+    const len = ((end - start) * p.length) / total;
+    const r = { p, a: t, b: t + len };
+    t += len;
+    return r;
+  });
+  const cur = spans.find((s) => f >= s.a && f < s.b);
+  if (!cur) return null;
+  const o = Math.min(ease(f, cur.a, cur.a + 8), ease(f, cur.b - 8, cur.b, 1, 0));
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 30, display: "flex", justifyContent: "center", opacity: o }}>
+      <div style={{ maxWidth: 1500, textAlign: "center", font: `500 38px/1.35 ${FONT}`, color: C.text, background: "#0b0b10d9", border: `1px solid ${C.line}`, padding: "14px 30px", borderRadius: 18, transform: `translateY(${(1 - o) * 14}px)` }}>
+        {cur.p}
+      </div>
+    </div>
+  );
+};
+
+/** Scene wrapper: fades in and out at the edges, adds the caption and (if recorded) the voice-over. */
+export const Scene = ({ dur, vo, children }: { dur: number; vo: string; children: ReactNode }) => {
   const f = useCurrentFrame();
   const o = Math.min(ease(f, 0, 12), ease(f, dur - 12, dur, 1, 0));
+  const hasVo = (timing as Record<string, { vo: boolean }>)[vo]?.vo;
   return (
     <div style={{ position: "absolute", inset: 0, opacity: o, fontFamily: FONT, color: C.text }}>
       {children}
-      {vo && (
+      <Caption id={vo} dur={dur} />
+      {hasVo && (
         <Sequence from={18}>
           <Audio src={staticFile(`vo/${vo}.wav`)} />
         </Sequence>
