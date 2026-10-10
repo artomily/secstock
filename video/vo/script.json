@@ -1,0 +1,42 @@
+[
+  {
+    "id": "hook",
+    "min": 11,
+    "text": "It's Friday afternoon. The US market just closed. But your tokenized Tesla on BNB Chain? It keeps trading, all weekend."
+  },
+  {
+    "id": "problem",
+    "min": 16,
+    "text": "If you borrowed against it on Venus, that's a problem. The real price move happens Monday morning. One bad opening gap, and a loan that looked safe on Friday gets liquidated before you wake up."
+  },
+  {
+    "id": "intro",
+    "min": 9,
+    "text": "So I built Weekend Guard. A small agent that watches that window for you."
+  },
+  {
+    "id": "risk",
+    "min": 18,
+    "text": "First, it scores the gap risk. How long the market stays closed, whether earnings are coming, recent volatility, and how far the token drifts from the stock. If a signal is missing, it's left out, not guessed."
+  },
+  {
+    "id": "sim",
+    "min": 18,
+    "text": "Then it stress tests your loan. This is your health factor through a Monday gap. Move the slider, and you see exactly where you'd get liquidated, with and without protection."
+  },
+  {
+    "id": "scenarios",
+    "min": 13,
+    "text": "Five, ten, twenty, thirty percent. The red bars get liquidated. The purple ones show what a small stablecoin top-up buys you."
+  },
+  {
+    "id": "protect",
+    "min": 20,
+    "text": "Finally, it sizes that top-up and writes the exact Binance Agentic Wallet commands. Preview first, then deposit. Nothing moves until you type yes, and the agent can't withdraw a thing."
+  },
+  {
+    "id": "outro",
+    "min": 15,
+    "text": "The risk model is tested. Live data was blocked on my network, so this demo runs on labeled demo data. Weekend Guard. Sleep through the weekend."
+  }
+]

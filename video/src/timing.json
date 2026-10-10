@@ -1,0 +1,34 @@
+{
+  "hook": {
+    "frames": 330,
+    "vo": true
+  },
+  "problem": {
+    "frames": 480,
+    "vo": true
+  },
+  "intro": {
+    "frames": 270,
+    "vo": true
+  },
+  "risk": {
+    "frames": 540,
+    "vo": true
+  },
+  "sim": {
+    "frames": 540,
+    "vo": true
+  },
+  "scenarios": {
+    "frames": 390,
+    "vo": true
+  },
+  "protect": {
+    "frames": 600,
+    "vo": true
+  },
+  "outro": {
+    "frames": 450,
+    "vo": true
+  }
+}
