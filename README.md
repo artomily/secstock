@@ -1,4 +1,4 @@
-# SecStock · Weekend Guard
+# SecStock
 
 **Will your tokenized-stock collateral survive Monday's opening gap?**
 
@@ -6,18 +6,22 @@ Tokenized stocks on BNB Chain trade 24/7. The underlying US market does not. If 
 market such as Venus, the token can keep moving all weekend, while the price discovery that matters happens when the
 US market reopens. A position that looks safe on Friday can be liquidated by the first Monday print.
 
-Weekend Guard is a small agent for that window. It scores the gap risk of a bStock from Binance's public tokenized-securities
+SecStock is a small agent for that window. It scores the gap risk of a bStock from Binance's public tokenized-securities
 data, reads your Venus position through the Binance Agentic Wallet, sizes a stablecoin top-up that keeps your health factor
 above a target through a stress gap, previews it, and **only executes after you type `YES`**.
 
 Built for *BNB Hack: Tokenized Stocks Edition*.
+
+**Demo video:** https://youtu.be/dJRlb7BQGK0
+
+[![SecStock demo](https://img.youtube.com/vi/dJRlb7BQGK0/hqdefault.jpg)](https://youtu.be/dJRlb7BQGK0)
 
 ## What is real, and what is not
 
 | Part | Status |
 |---|---|
 | Gap Risk Score, stress-gap model, health-factor simulation | Implemented, covered by unit tests (`npm test`) |
-| Binance public tokenized-securities client (`lib/binance.ts`) | Implemented from the official skill docs. **Verify on your machine with `npm run probe`** |
+| Binance public tokenized-securities client (`lib/binance.ts`) | Implemented from the official skill docs. Verified live with `npm run probe` (Ondo, xStocks-style and bStock all pass) |
 | Agent loop with `baw` (`scripts/guard.mjs`) | Implemented against the response shapes documented in `binance-agentic-wallet/references/defi.md`; tested end-to-end with a stub `baw`. Not yet run against a real signed-in wallet unless noted in `DX_NOTES.md` |
 | Web dashboard | Works with live data, or with clearly labelled **DEMO DATA** when Binance is unreachable |
 | Telegram alert | Optional, off unless env vars are set |
@@ -47,16 +51,63 @@ Every run appends a line to `guard-log.jsonl` (score, gap, top-up, action, tx ha
 
 ## How it works
 
+### Architecture
+
+```mermaid
+flowchart LR
+    subgraph Binance["Binance public API (no key)"]
+        MS[market status]
+        AS[asset status]
+        DD[dynamic data]
+        KL[k-line]
+    end
+    subgraph Wallet["Binance Agentic Wallet (baw)"]
+        POS[defi position]
+        PRE[defi preview]
+        DEP[defi deposit]
+    end
+    BC[lib/binance.ts] --> RISK[lib/risk.ts<br/>score + stress gap]
+    MS & AS & DD & KL --> BC
+    RISK --> SIM[lib/sim.ts<br/>health factor + top-up]
+    SIM --> AGENT[scripts/guard.mjs<br/>agent]
+    SIM --> UI[app/<br/>Next.js dashboard + /api]
+    POS --> AGENT
+    AGENT --> PRE
+    AGENT --> DEP
+    DEP --> VENUS[(Venus on BNB Chain)]
+    AGENT --> LOG[(guard-log.jsonl)]
+    UI -. optional .-> TG[Telegram alert]
 ```
-Binance public API (no key)              Binance Agentic Wallet (baw)
-  market status · asset status             defi position  -> Venus health rate, collateral, debt
-  dynamic data · k-line                    defi preview   -> dry run, fees, warnings
-        |                                  defi deposit   -> executes only after you type YES
-        v                                         ^
-  lib/risk.ts  --- score, stress gap --->  scripts/guard.mjs  (agent)
-        |                                         |
-        v                                         v
-  lib/sim.ts   --- health factor, top-up   app/  (Next.js dashboard + /api routes)
+
+### Agent flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Agent as guard.mjs
+    participant API as Binance RWA API
+    participant baw as Agentic Wallet (baw)
+    participant Venus
+
+    User->>Agent: npm run guard -- --symbol=TSLAB
+    Agent->>API: market + asset status, dynamic data, k-line
+    API-->>Agent: hours closed, reasonCode, prices, candles
+    Agent->>Agent: Gap Risk Score + stress gap
+    Agent->>baw: defi position
+    baw-->>Agent: collateral, debt, healthRate
+    Agent->>Agent: simulate HF after gap, size top-up
+    alt HF stays above target
+        Agent-->>User: safe, no action
+    else top-up needed
+        Agent->>baw: defi preview (stablecoin deposit)
+        baw-->>Agent: fees, warnings
+        Agent-->>User: plan + preview, type YES?
+        User->>Agent: YES
+        Agent->>baw: defi deposit
+        baw->>Venus: supply stablecoin
+        Venus-->>Agent: tx hash
+    end
+    Agent->>Agent: append decision to guard-log.jsonl
 ```
 
 ### Gap Risk Score (0-100)
@@ -112,6 +163,7 @@ Ondo tokens are covered by the same endpoints.
 - Supplied USDT only counts as collateral if it is enabled as collateral on Venus.
 - `baw` documents deposit and redeem for DeFi positions, not borrow or repay, so repaying debt is shown for comparison only.
 - The status endpoints expose the *current* state, not an earnings calendar. The guard cannot see an earnings date days ahead.
-- The Binance docs describe the tokenized-securities endpoints for Ondo tokens. Whether status, price and k-line work for bStock
-  tokens is exactly what `npm run probe` tells you. See `DX_NOTES.md`.
+- The Binance docs describe the tokenized-securities endpoints for Ondo tokens only. `npm run probe` confirmed that status,
+  dynamic data and k-line also work for bStock (`type=3`) and xStocks-style (`type=2`) tokens. On weekends the bStock stock
+  price is `null`, so the divergence signal drops out. See `DX_NOTES.md`.
 - Not financial advice. Do your own research.
